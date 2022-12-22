@@ -17,7 +17,6 @@ import { Ingredients } from './ingredients/ingredients.model';
       database: 'diet-app',
       entities: [Meal, Ingredients],
       synchronize: true,
-      dropSchema: true,
       logging: true,
     }),
     MealsModule,
