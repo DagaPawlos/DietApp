@@ -1,4 +1,12 @@
-import { IsString, IsNumber, IsEnum } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsString,
+  IsNumber,
+  IsEnum,
+  IsArray,
+  ValidateNested,
+} from 'class-validator';
+import { IngredientDto } from 'src/ingredients/ingredients.dto';
 import { MealType, Owner } from './meals.model';
 
 export class CreateMealDto {
@@ -22,4 +30,9 @@ export class CreateMealDto {
 
   @IsEnum(MealType)
   mealType: MealType;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => IngredientDto)
+  ingredients: IngredientDto[];
 }

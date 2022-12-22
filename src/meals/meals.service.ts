@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Ingredients } from 'src/ingredients/ingredients.model';
 import { Repository } from 'typeorm';
 import { CreateMealDto } from './meals.dto';
 import { Meal } from './meals.model';
@@ -19,6 +20,19 @@ export class MealsService {
     newMeal.fats = body.fats;
     newMeal.mealOwner = body.mealOwner;
     newMeal.mealType = body.mealType;
+
+    const ingredients = [];
+
+    for (let i = 0; i < body.ingredients.length; i++) {
+      const newIngredient = new Ingredients();
+      newIngredient.name = body.ingredients[i].name;
+      newIngredient.quantity = body.ingredients[i].quantity;
+      newIngredient.unit = body.ingredients[i].unit;
+
+      ingredients.push(newIngredient);
+    }
+
+    newMeal.ingredients = ingredients;
 
     const meal = await this.mealsRepository.save(newMeal);
     return meal;

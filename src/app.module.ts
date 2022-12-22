@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Meal } from './meals/meals.model';
 import { MealsModule } from './meals/meals.module';
+import { Ingredients } from './ingredients/ingredients.model';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { MealsModule } from './meals/meals.module';
       username: 'postgres',
       password: 'haslo',
       database: 'diet-app',
-      entities: [Meal],
+      entities: [Meal, Ingredients],
       synchronize: true,
       dropSchema: true,
       logging: true,

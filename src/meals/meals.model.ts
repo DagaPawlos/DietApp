@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Ingredients } from 'src/ingredients/ingredients.model';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 
 export enum Owner {
   DAGA = 'daga',
@@ -43,4 +44,9 @@ export class Meal {
     enum: MealType,
   })
   mealType: MealType;
+
+  @OneToMany(() => Ingredients, (ingredients) => ingredients.meal, {
+    cascade: true,
+  })
+  ingredients: Ingredients[];
 }
