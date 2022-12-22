@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Ingredients } from 'src/ingredients/ingredients.model';
 import { Repository } from 'typeorm';
 import { CreateMealDto } from './meals.dto';
-import { Meal } from './meals.model';
+import { Meal, MealType } from './meals.model';
 
 @Injectable()
 export class MealsService {
@@ -38,8 +38,45 @@ export class MealsService {
     return meal;
   }
 
-  async getMeals(): Promise<Meal[]> {
-    return this.mealsRepository.find();
+  async getMeals() {
+    const meals = await this.mealsRepository.find({
+      select: { id: true, name: true, mealType: true },
+    });
+
+    const mealTable = {
+      breakfastes: [],
+      elevenses: [],
+      lunches: [],
+      dinners: [],
+    };
+
+    for (let i = 0; i < meals.length; i++) {
+      const meal = {
+        id: meals[i].id,
+        name: meals[i].name,
+      };
+
+      switch (meals[i].mealType) {
+        case MealType.BREAKFAST: {
+          mealTable.breakfastes.push(meal);
+          break;
+        }
+        case MealType.ELEVENSES: {
+          mealTable.elevenses.push(meal);
+          break;
+        }
+        case MealType.LUNCH: {
+          mealTable.lunches.push(meal);
+          break;
+        }
+        case MealType.DINNER: {
+          mealTable.dinners.push(meal);
+          break;
+        }
+      }
+    }
+
+    return mealTable;
   }
 
   async getMeal(id: number): Promise<Meal> {
