@@ -7,7 +7,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { IngredientDto } from 'src/ingredients/ingredients.dto';
-import { MealType, Owner } from './meals.model';
+import { MealType, Owner } from '../meals.model';
 
 export class CreateMealDto {
   @IsString()

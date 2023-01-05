@@ -1,5 +1,6 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { CreateMealDto } from './meals.dto';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { CreateMealDto } from './dto/create-meal.dto';
+import { SearchMealQueryDto } from './dto/search-meal-query.dto';
 import { MealsService } from './meals.service';
 
 @Controller('meals')
@@ -12,8 +13,8 @@ export class MealsController {
   }
 
   @Get()
-  getAllMeals() {
-    return this.mealsService.getMeals();
+  getAllMeals(@Query() query: SearchMealQueryDto) {
+    return this.mealsService.getMeals(query);
   }
 
   @Get(':id')

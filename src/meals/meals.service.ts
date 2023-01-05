@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Ingredients } from 'src/ingredients/ingredients.model';
 import { Repository } from 'typeorm';
-import { CreateMealDto } from './meals.dto';
+import { CreateMealDto } from './dto/create-meal.dto';
+import { SearchMealQueryDto } from './dto/search-meal-query.dto';
 import { Meal, MealType } from './meals.model';
 
 @Injectable()
@@ -39,8 +40,9 @@ export class MealsService {
     return meal;
   }
 
-  async getMeals() {
+  async getMeals(query: SearchMealQueryDto) {
     const meals = await this.mealsRepository.find({
+      where: { mealOwner: query.mealOwner, mealType: query.mealType },
       select: { id: true, name: true, mealType: true },
     });
 
