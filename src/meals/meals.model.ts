@@ -33,6 +33,9 @@ export class Meal {
   @Column()
   fats: number;
 
+  @Column()
+  fileName: string;
+
   @Column({
     type: 'enum',
     enum: Owner,

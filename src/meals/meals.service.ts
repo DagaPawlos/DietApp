@@ -20,6 +20,7 @@ export class MealsService {
     newMeal.fats = body.fats;
     newMeal.mealOwner = body.mealOwner;
     newMeal.mealType = body.mealType;
+    newMeal.fileName = body.fileName;
 
     const ingredients = [];
 

@@ -25,6 +25,9 @@ export class CreateMealDto {
   @IsNumber()
   fats: number;
 
+  @IsString()
+  fileName: string;
+
   @IsEnum(Owner)
   mealOwner: Owner;
 
