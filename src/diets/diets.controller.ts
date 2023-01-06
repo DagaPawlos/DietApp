@@ -8,6 +8,6 @@ export class DietsController {
 
   @Post()
   createDiet(@Body() createDietDto: CreateDietDto) {
-    return 'ok';
+    return this.dietsService.createDiet(createDietDto);
   }
 }
