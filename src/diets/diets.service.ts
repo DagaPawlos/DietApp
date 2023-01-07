@@ -57,13 +57,18 @@ export class DietsService {
         }
       }
     }
+    const shoppingList = [];
+
+    for (const [key, value] of Object.entries(qtyMeal)) {
+      const ing = `${key}: ${(<any>value).qty}${(<any>value).unit}`;
+      shoppingList.push(ing);
+    }
+
     const dietForWeek = {
-      meals: {
-        breakfastes: [],
-        elevenses: [],
-        lunches: [],
-        dinners: [],
-      },
+      breakfastes: [],
+      elevenses: [],
+      lunches: [],
+      dinners: [],
     };
 
     for (let i = 0; i < meals.length; i++) {
@@ -75,34 +80,27 @@ export class DietsService {
       };
       switch (meals[i].mealType) {
         case MealType.BREAKFAST: {
-          dietForWeek.meals.breakfastes.push(mealsData);
+          dietForWeek.breakfastes.push(mealsData);
           break;
         }
         case MealType.ELEVENSES: {
-          dietForWeek.meals.elevenses.push(mealsData);
+          dietForWeek.elevenses.push(mealsData);
           break;
         }
         case MealType.LUNCH: {
-          dietForWeek.meals.lunches.push(mealsData);
+          dietForWeek.lunches.push(mealsData);
           break;
         }
         case MealType.DINNER: {
-          dietForWeek.meals.dinners.push(mealsData);
+          dietForWeek.dinners.push(mealsData);
           break;
         }
       }
     }
 
-    console.log(dietForWeek);
-
     return {
-      meals: {
-        breakfastes: [],
-        elevenses: [],
-        lunches: [],
-        dinners: [],
-      },
-      shoppingList: [],
+      meals: dietForWeek,
+      shoppingList,
     };
   }
 }
