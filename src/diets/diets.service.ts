@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Meal, MealType, Owner } from 'src/meals/meals.model';
 import { In, Repository } from 'typeorm';
+import { DagaTargetCalories, PatrykTargetCalories } from './calories-config';
 import { CreateDietDto } from './create-diet.dto';
 
 interface MealChoice {
@@ -40,12 +41,52 @@ export class DietsService {
     });
 
     const qtyMeal = {};
-
     for (let i = 0; i < meals.length; i++) {
+      let caloriesFactor;
+      if (meals[i].mealOwner == Owner.PATRYK) {
+        switch (meals[i].mealType) {
+          case MealType.BREAKFAST: {
+            caloriesFactor = PatrykTargetCalories.BREAKFAST / meals[i].calories;
+            break;
+          }
+          case MealType.ELEVENSES: {
+            caloriesFactor = PatrykTargetCalories.ELEVENSES / meals[i].calories;
+            break;
+          }
+          case MealType.LUNCH: {
+            caloriesFactor = PatrykTargetCalories.LUNCH / meals[i].calories;
+            break;
+          }
+          case MealType.DINNER: {
+            caloriesFactor = PatrykTargetCalories.DINNER / meals[i].calories;
+            break;
+          }
+        }
+      } else {
+        switch (meals[i].mealType) {
+          case MealType.BREAKFAST: {
+            caloriesFactor = DagaTargetCalories.BREAKFAST / meals[i].calories;
+            break;
+          }
+          case MealType.ELEVENSES: {
+            caloriesFactor = DagaTargetCalories.ELEVENSES / meals[i].calories;
+            break;
+          }
+          case MealType.LUNCH: {
+            caloriesFactor = DagaTargetCalories.LUNCH / meals[i].calories;
+            break;
+          }
+          case MealType.DINNER: {
+            caloriesFactor = DagaTargetCalories.DINNER / meals[i].calories;
+            break;
+          }
+        }
+      }
+
       for (let j = 0; j < meals[i].ingredients.length; j++) {
         const ingQ = meals[i].ingredients[j].quantity;
         const ingU = meals[i].ingredients[j].unit;
-        const ingQty = ingQ * body.dietMeal[i].qty;
+        const ingQty = Math.round(ingQ * body.dietMeal[i].qty * caloriesFactor);
 
         if (qtyMeal[meals[i].ingredients[j].name]) {
           qtyMeal[meals[i].ingredients[j].name] = {
