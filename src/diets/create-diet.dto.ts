@@ -8,7 +8,7 @@ export class CreateDietDto {
   dietMeal: DietMeal[];
 }
 
-class DietMeal {
+export class DietMeal {
   @IsNumber()
   id: number;
 

@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Meal, MealType, Owner } from 'src/meals/meals.model';
 import { In, Repository } from 'typeorm';
 import { DagaTargetCalories, PatrykTargetCalories } from './calories-config';
-import { CreateDietDto } from './create-diet.dto';
+import { CreateDietDto, DietMeal } from './create-diet.dto';
 
 interface MealChoice {
   name: string;
@@ -29,119 +29,137 @@ export class DietsService {
   ) {}
 
   async createDiet(body: CreateDietDto): Promise<DietPlan> {
-    const mealIdTable: number[] = [];
-
-    for (let i = 0; i < body.dietMeal.length; i++) {
-      mealIdTable.push(body.dietMeal[i].id);
-    }
+    const mealIds = body.dietMeal.map((meal) => meal.id);
 
     const meals = await this.mealsRepository.find({
-      where: { id: In(mealIdTable) },
+      where: { id: In(mealIds) },
       relations: { ingredients: true },
     });
 
-    const qtyMeal = {};
-    for (let i = 0; i < meals.length; i++) {
-      let caloriesFactor;
-      if (meals[i].mealOwner == Owner.PATRYK) {
-        switch (meals[i].mealType) {
-          case MealType.BREAKFAST: {
-            caloriesFactor = PatrykTargetCalories.BREAKFAST / meals[i].calories;
-            break;
-          }
-          case MealType.ELEVENSES: {
-            caloriesFactor = PatrykTargetCalories.ELEVENSES / meals[i].calories;
-            break;
-          }
-          case MealType.LUNCH: {
-            caloriesFactor = PatrykTargetCalories.LUNCH / meals[i].calories;
-            break;
-          }
-          case MealType.DINNER: {
-            caloriesFactor = PatrykTargetCalories.DINNER / meals[i].calories;
-            break;
-          }
-        }
-      } else {
-        switch (meals[i].mealType) {
-          case MealType.BREAKFAST: {
-            caloriesFactor = DagaTargetCalories.BREAKFAST / meals[i].calories;
-            break;
-          }
-          case MealType.ELEVENSES: {
-            caloriesFactor = DagaTargetCalories.ELEVENSES / meals[i].calories;
-            break;
-          }
-          case MealType.LUNCH: {
-            caloriesFactor = DagaTargetCalories.LUNCH / meals[i].calories;
-            break;
-          }
-          case MealType.DINNER: {
-            caloriesFactor = DagaTargetCalories.DINNER / meals[i].calories;
-            break;
-          }
-        }
-      }
-
-      for (let j = 0; j < meals[i].ingredients.length; j++) {
-        const ingQ = meals[i].ingredients[j].quantity;
-        const ingU = meals[i].ingredients[j].unit;
-        const ingQty = Math.round(ingQ * body.dietMeal[i].qty * caloriesFactor);
-
-        if (qtyMeal[meals[i].ingredients[j].name]) {
-          qtyMeal[meals[i].ingredients[j].name] = {
-            qty: qtyMeal[meals[i].ingredients[j].name].qty + ingQty,
-            unit: ingU,
-          };
-        } else {
-          qtyMeal[meals[i].ingredients[j].name] = { qty: ingQty, unit: ingU };
-        }
-      }
-    }
-    const shoppingList = [];
-
-    for (const [key, value] of Object.entries(qtyMeal)) {
-      const ing = `${key}: ${(<any>value).qty}${(<any>value).unit}`;
-      shoppingList.push(ing);
-    }
-
+    const ingredients = {};
     const dietForWeek = {
       breakfastes: [],
       elevenses: [],
       lunches: [],
       dinners: [],
     };
-
     for (let i = 0; i < meals.length; i++) {
-      const mealsData = {
-        name: meals[i].name,
-        owner: meals[i].mealOwner,
-        file: meals[i].fileName,
-        times: body.dietMeal.find((arg) => arg.id == meals[i].id).qty,
-      };
+      const caloriesFactor = this.countCaloriesFactor(meals[i]);
+
+      const mealData = this.prepareMealData(meals[i], body.dietMeal);
       switch (meals[i].mealType) {
         case MealType.BREAKFAST: {
-          dietForWeek.breakfastes.push(mealsData);
+          dietForWeek.breakfastes.push(mealData);
           break;
         }
         case MealType.ELEVENSES: {
-          dietForWeek.elevenses.push(mealsData);
+          dietForWeek.elevenses.push(mealData);
           break;
         }
         case MealType.LUNCH: {
-          dietForWeek.lunches.push(mealsData);
+          dietForWeek.lunches.push(mealData);
           break;
         }
         case MealType.DINNER: {
-          dietForWeek.dinners.push(mealsData);
+          dietForWeek.dinners.push(mealData);
           break;
         }
       }
+
+      for (let j = 0; j < meals[i].ingredients.length; j++) {
+        const ingredientUnit = meals[i].ingredients[j].unit;
+        const ingredientQuantity = this.countIngredientQuantity(
+          meals[i].ingredients[j].quantity,
+          body.dietMeal[i].qty,
+          caloriesFactor,
+        );
+
+        if (ingredients[meals[i].ingredients[j].name]) {
+          ingredients[meals[i].ingredients[j].name] = {
+            qty:
+              ingredients[meals[i].ingredients[j].name].qty +
+              ingredientQuantity,
+            unit: ingredientUnit,
+          };
+        } else {
+          ingredients[meals[i].ingredients[j].name] = {
+            qty: ingredientQuantity,
+            unit: ingredientUnit,
+          };
+        }
+      }
+    }
+
+    const shoppingList = [];
+    for (const [key, value] of Object.entries(ingredients)) {
+      const ingredient = `${key}: ${(<any>value).qty}${(<any>value).unit}`;
+      shoppingList.push(ingredient);
     }
 
     return {
       meals: dietForWeek,
       shoppingList,
     };
+  }
+
+  private countIngredientQuantity(
+    ingredientQuantity: number,
+    dietMealQuantity: number,
+    caloriesFactor: number,
+  ) {
+    return Math.round(ingredientQuantity * dietMealQuantity * caloriesFactor);
+  }
+
+  private prepareMealData(meal: Meal, dietMeals: DietMeal[]) {
+    return {
+      name: meal.name,
+      owner: meal.mealOwner,
+      file: meal.fileName,
+      times: dietMeals.find((arg) => arg.id == meal.id).qty,
+    };
+  }
+
+  private countCaloriesFactor(meal: Meal): number {
+    let caloriesFactor;
+    if (meal.mealOwner == Owner.PATRYK) {
+      switch (meal.mealType) {
+        case MealType.BREAKFAST: {
+          caloriesFactor = PatrykTargetCalories.BREAKFAST / meal.calories;
+          break;
+        }
+        case MealType.ELEVENSES: {
+          caloriesFactor = PatrykTargetCalories.ELEVENSES / meal.calories;
+          break;
+        }
+        case MealType.LUNCH: {
+          caloriesFactor = PatrykTargetCalories.LUNCH / meal.calories;
+          break;
+        }
+        case MealType.DINNER: {
+          caloriesFactor = PatrykTargetCalories.DINNER / meal.calories;
+          break;
+        }
+      }
+    } else {
+      switch (meal.mealType) {
+        case MealType.BREAKFAST: {
+          caloriesFactor = DagaTargetCalories.BREAKFAST / meal.calories;
+          break;
+        }
+        case MealType.ELEVENSES: {
+          caloriesFactor = DagaTargetCalories.ELEVENSES / meal.calories;
+          break;
+        }
+        case MealType.LUNCH: {
+          caloriesFactor = DagaTargetCalories.LUNCH / meal.calories;
+          break;
+        }
+        case MealType.DINNER: {
+          caloriesFactor = DagaTargetCalories.DINNER / meal.calories;
+          break;
+        }
+      }
+    }
+    return caloriesFactor;
   }
 }
