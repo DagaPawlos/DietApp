@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Unit } from 'src/ingredients/ingredients.model';
 import { Meal, MealType, Owner } from 'src/meals/meals.model';
 import { In, Repository } from 'typeorm';
 import { DagaTargetCalories, PatrykTargetCalories } from './calories-config';
@@ -10,6 +11,7 @@ interface MealChoice {
   owner: Owner;
   plik: string;
   qty: number;
+  ingredients: string[];
 }
 
 export interface DietPlan {
@@ -36,7 +38,7 @@ export class DietsService {
       relations: { ingredients: true },
     });
 
-    const ingredients = {};
+    const ingredients: { [x: string]: { qty: number; unit: Unit } } = {};
     const dietForWeek = {
       breakfastes: [],
       elevenses: [],
@@ -47,6 +49,31 @@ export class DietsService {
       const caloriesFactor = this.countCaloriesFactor(meals[i]);
 
       const mealData = this.prepareMealData(meals[i], body.dietMeal);
+
+      for (let j = 0; j < meals[i].ingredients.length; j++) {
+        const ingredientUnit = meals[i].ingredients[j].unit;
+        const ingredientQuantity = this.countIngredientQuantity(
+          meals[i].ingredients[j].quantity,
+          body.dietMeal[i].qty,
+          caloriesFactor,
+        );
+        const ingredient = `${meals[i].ingredients[j].name}: ${ingredientQuantity}${ingredientUnit}`;
+        mealData.ingredients.push(ingredient);
+
+        if (ingredients[meals[i].ingredients[j].name]) {
+          ingredients[meals[i].ingredients[j].name] = {
+            qty:
+              ingredients[meals[i].ingredients[j].name].qty +
+              ingredientQuantity,
+            unit: ingredientUnit,
+          };
+        } else {
+          ingredients[meals[i].ingredients[j].name] = {
+            qty: ingredientQuantity,
+            unit: ingredientUnit,
+          };
+        }
+      }
       switch (meals[i].mealType) {
         case MealType.BREAKFAST: {
           dietForWeek.breakfastes.push(mealData);
@@ -65,36 +92,11 @@ export class DietsService {
           break;
         }
       }
-
-      for (let j = 0; j < meals[i].ingredients.length; j++) {
-        const ingredientUnit = meals[i].ingredients[j].unit;
-        const ingredientQuantity = this.countIngredientQuantity(
-          meals[i].ingredients[j].quantity,
-          body.dietMeal[i].qty,
-          caloriesFactor,
-        );
-
-        if (ingredients[meals[i].ingredients[j].name]) {
-          ingredients[meals[i].ingredients[j].name] = {
-            qty:
-              ingredients[meals[i].ingredients[j].name].qty +
-              ingredientQuantity,
-            unit: ingredientUnit,
-          };
-        } else {
-          ingredients[meals[i].ingredients[j].name] = {
-            qty: ingredientQuantity,
-            unit: ingredientUnit,
-          };
-        }
-      }
     }
 
-    const shoppingList = [];
-    for (const [key, value] of Object.entries(ingredients)) {
-      const ingredient = `${key}: ${(<any>value).qty}${(<any>value).unit}`;
-      shoppingList.push(ingredient);
-    }
+    const shoppingList = Object.entries(ingredients).map(
+      ([key, value]) => `${key}: ${value.qty}${value.unit}`,
+    );
 
     return {
       meals: dietForWeek,
@@ -116,6 +118,7 @@ export class DietsService {
       owner: meal.mealOwner,
       file: meal.fileName,
       times: dietMeals.find((arg) => arg.id == meal.id).qty,
+      ingredients: [],
     };
   }
 
