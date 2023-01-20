@@ -6,11 +6,11 @@ import { In, Repository } from 'typeorm';
 import { DagaTargetCalories, PatrykTargetCalories } from './calories-config';
 import { CreateDietDto, DietMeal } from './create-diet.dto';
 
-interface MealChoice {
+export interface MealChoice {
   name: string;
   owner: Owner;
-  plik: string;
-  qty: number;
+  file: string;
+  times: number;
   ingredients: string[];
 }
 
