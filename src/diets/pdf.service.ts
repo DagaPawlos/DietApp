@@ -7,7 +7,7 @@ import { DietPlan, MealChoice } from './diets.service';
 export class PdfService {
   async createPdf(diet: DietPlan) {
     const doc = new PDFDocument();
-    doc.pipe(createWriteStream('diet.pdf'));
+    doc.pipe(createWriteStream(`diets/diet-${Date.now()}.pdf`));
     doc.fontSize(25).text('Meals:');
 
     this.printMealTypeText(doc, 'Breakfastes', diet.meals.breakfastes);
