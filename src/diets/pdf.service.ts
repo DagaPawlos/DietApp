@@ -10,10 +10,9 @@ export class PdfService {
     doc.pipe(createWriteStream(`diets/diet-${Date.now()}.pdf`));
     doc.fontSize(25).text('Meals:');
 
-    this.printMealTypeText(doc, 'Breakfastes', diet.meals.breakfastes);
-    this.printMealTypeText(doc, 'Eleveneses', diet.meals.elevenses);
-    this.printMealTypeText(doc, 'Lunches', diet.meals.lunches);
-    this.printMealTypeText(doc, 'Dinners', diet.meals.dinners);
+    Object.entries(diet.meals).forEach(([mealType, meals]) =>
+      this.printMealTypeText(doc, this.capitalizeFirstLetter(mealType), meals),
+    );
 
     doc.moveDown();
     doc.fontSize(20).text('Shopping list:');
@@ -22,6 +21,10 @@ export class PdfService {
       doc.fontSize(15).text(ingredient),
     );
     doc.end();
+  }
+
+  private capitalizeFirstLetter(mealType: string): string {
+    return mealType.charAt(0).toUpperCase() + mealType.slice(1);
   }
 
   private printMealTypeText(
