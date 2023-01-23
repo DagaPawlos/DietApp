@@ -95,7 +95,8 @@ export class DietsService {
     }
 
     const shoppingList = Object.entries(ingredients).map(
-      ([key, value]) => `${key}: ${value.qty}${value.unit}`,
+      ([ingredientName, ingredient]) =>
+        `${ingredientName}: ${ingredient.qty}${ingredient.unit}`,
     );
 
     return {
@@ -117,52 +118,41 @@ export class DietsService {
       name: meal.name,
       owner: meal.mealOwner,
       file: meal.fileName,
-      times: dietMeals.find((arg) => arg.id == meal.id).qty,
+      times: dietMeals.find((dietMeal) => dietMeal.id == meal.id).qty,
       ingredients: [],
     };
   }
 
   private countCaloriesFactor(meal: Meal): number {
-    let caloriesFactor;
-    if (meal.mealOwner == Owner.PATRYK) {
-      switch (meal.mealType) {
-        case MealType.BREAKFAST: {
-          caloriesFactor = PatrykTargetCalories.BREAKFAST / meal.calories;
-          break;
-        }
-        case MealType.ELEVENSES: {
-          caloriesFactor = PatrykTargetCalories.ELEVENSES / meal.calories;
-          break;
-        }
-        case MealType.LUNCH: {
-          caloriesFactor = PatrykTargetCalories.LUNCH / meal.calories;
-          break;
-        }
-        case MealType.DINNER: {
-          caloriesFactor = PatrykTargetCalories.DINNER / meal.calories;
-          break;
-        }
+    switch (meal.mealType) {
+      case MealType.BREAKFAST: {
+        return (
+          (meal.mealOwner == Owner.PATRYK
+            ? PatrykTargetCalories.BREAKFAST
+            : DagaTargetCalories.BREAKFAST) / meal.calories
+        );
       }
-    } else {
-      switch (meal.mealType) {
-        case MealType.BREAKFAST: {
-          caloriesFactor = DagaTargetCalories.BREAKFAST / meal.calories;
-          break;
-        }
-        case MealType.ELEVENSES: {
-          caloriesFactor = DagaTargetCalories.ELEVENSES / meal.calories;
-          break;
-        }
-        case MealType.LUNCH: {
-          caloriesFactor = DagaTargetCalories.LUNCH / meal.calories;
-          break;
-        }
-        case MealType.DINNER: {
-          caloriesFactor = DagaTargetCalories.DINNER / meal.calories;
-          break;
-        }
+      case MealType.ELEVENSES: {
+        return (
+          (meal.mealOwner == Owner.PATRYK
+            ? PatrykTargetCalories.ELEVENSES
+            : DagaTargetCalories.ELEVENSES) / meal.calories
+        );
+      }
+      case MealType.LUNCH: {
+        return (
+          (meal.mealOwner == Owner.PATRYK
+            ? PatrykTargetCalories.LUNCH
+            : DagaTargetCalories.LUNCH) / meal.calories
+        );
+      }
+      case MealType.DINNER: {
+        return (
+          (meal.mealOwner == Owner.PATRYK
+            ? PatrykTargetCalories.DINNER
+            : DagaTargetCalories.DINNER) / meal.calories
+        );
       }
     }
-    return caloriesFactor;
   }
 }
