@@ -23,16 +23,14 @@ export class MealsService {
     newMeal.mealType = body.mealType;
     newMeal.fileName = body.fileName;
 
-    const ingredients = [];
-
-    for (let i = 0; i < body.ingredients.length; i++) {
+    const ingredients = body.ingredients.map((ingredient)=>{
       const newIngredient = new Ingredients();
-      newIngredient.name = body.ingredients[i].name;
-      newIngredient.quantity = body.ingredients[i].quantity;
-      newIngredient.unit = body.ingredients[i].unit;
+      newIngredient.name = ingredient.name;
+      newIngredient.quantity = ingredient.quantity;
+      newIngredient.unit = ingredient.unit;
+      return newIngredient;
+    })
 
-      ingredients.push(newIngredient);
-    }
 
     newMeal.ingredients = ingredients;
 
