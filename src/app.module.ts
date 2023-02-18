@@ -6,6 +6,9 @@ import { Meal } from './meals/meals.model';
 import { MealsModule } from './meals/meals.module';
 import { Ingredients } from './ingredients/ingredients.model';
 import { DietsModule } from './diets/diets.module';
+import { UsersModule } from './users/users.module';
+import { User } from './users/users.model';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -16,12 +19,14 @@ import { DietsModule } from './diets/diets.module';
       username: 'postgres',
       password: 'haslo',
       database: 'diet-app',
-      entities: [Meal, Ingredients],
+      entities: [Meal, Ingredients, User],
       synchronize: true,
       logging: true,
     }),
     MealsModule,
     DietsModule,
+    UsersModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
