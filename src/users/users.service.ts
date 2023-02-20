@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RegisterUserDto } from 'src/auth/dto/register-user.dto';
 import { Repository } from 'typeorm';
@@ -17,7 +17,7 @@ export class UsersService {
       where: { login: body.login },
     });
     if (userExist) {
-      throw new UnauthorizedException();
+      throw new BadRequestException('User with given login already exists');
     }
 
     const newUser = new User();
@@ -30,5 +30,11 @@ export class UsersService {
 
     const user = await this.usersRepository.save(newUser);
     return user;
+  }
+
+  async findUser(login: string): Promise<User> {
+    return this.usersRepository.findOne({
+      where: { login },
+    });
   }
 }
