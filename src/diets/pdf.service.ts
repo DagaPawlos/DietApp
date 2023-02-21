@@ -7,7 +7,8 @@ import { DietPlan, MealChoice } from './diets.service';
 export class PdfService {
   async createPdf(diet: DietPlan) {
     const doc = new PDFDocument();
-    doc.pipe(createWriteStream(`diets/diet-${Date.now()}.pdf`));
+    const path = `diets/diet-${Date.now()}.pdf`;
+    doc.pipe(createWriteStream(path));
     doc.fontSize(25).text('Meals:');
 
     Object.entries(diet.meals).forEach(([mealType, meals]) =>
@@ -21,6 +22,8 @@ export class PdfService {
       doc.fontSize(15).text(ingredient),
     );
     doc.end();
+
+    return path;
   }
 
   private capitalizeFirstLetter(mealType: string): string {
