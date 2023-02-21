@@ -4,6 +4,8 @@ import { DietsService } from './diets.service';
 import { PdfService } from './pdf.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { ConfigService } from '@nestjs/config';
+import { StreamableFile } from '@nestjs/common/file-stream';
+import { createReadStream } from 'fs';
 
 @Controller('diets')
 export class DietsController {
@@ -15,9 +17,13 @@ export class DietsController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  async createDiet(@Body() createDietDto: CreateDietDto) {
+  async createDiet(
+    @Body() createDietDto: CreateDietDto,
+  ): Promise<StreamableFile> {
     const diet = await this.dietsService.createDiet(createDietDto);
-    this.pdfService.createPdf(diet);
-    return diet;
+    const pdfPath = await this.pdfService.createPdf(diet);
+
+    const file = createReadStream(pdfPath);
+    return new StreamableFile(file);
   }
 }
