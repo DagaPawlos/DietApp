@@ -39,12 +39,19 @@ export class PdfService {
     doc.fontSize(20).text(`${mealType}:`);
     meals.forEach((meal) => {
       doc.moveDown();
+      doc.fontSize(15).text(`Name: ${meal.name}`);
+      doc.moveDown();
+      doc.image(meal.imagePath, {
+        fit: [250, 300],
+        align: 'center',
+      });
+      doc.moveDown();
       doc
         .fontSize(15)
         .text(
-          `Name: ${meal.name}\nOwner: ${meal.owner}\nFile: ${
-            meal.file
-          }\nTimes: ${meal.times}\nIngredients: ${meal.ingredients.map(
+          `\nOwner: ${meal.owner}\nFile: ${meal.file}\nTimes: ${
+            meal.times
+          }\nIngredients: ${meal.ingredients.map(
             (ingredient) => `\n${ingredient}`,
           )}`,
         );

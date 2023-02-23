@@ -12,6 +12,7 @@ export interface MealChoice {
   file: string;
   times: number;
   ingredients: string[];
+  imagePath: string;
 }
 
 export interface DietPlan {
@@ -120,6 +121,7 @@ export class DietsService {
       file: meal.fileName,
       times: dietMeals.find((dietMeal) => dietMeal.id == meal.id).qty,
       ingredients: [],
+      imagePath: meal.imagePath,
     };
   }
 
