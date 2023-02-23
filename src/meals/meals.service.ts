@@ -42,7 +42,7 @@ export class MealsService {
   async getMeals(query: SearchMealQueryDto) {
     const meals = await this.mealsRepository.find({
       where: { mealOwner: query.mealOwner, mealType: query.mealType },
-      select: { id: true, name: true, mealType: true },
+      select: { id: true, name: true, mealType: true, imagePath: true },
     });
 
     const mealTable = {
@@ -56,6 +56,7 @@ export class MealsService {
       const meal = {
         id: meals[i].id,
         name: meals[i].name,
+        imagePath: meals[i].imagePath,
       };
 
       switch (meals[i].mealType) {
