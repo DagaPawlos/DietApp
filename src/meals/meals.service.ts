@@ -1,20 +1,17 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Ingredients } from 'src/ingredients/ingredients.model';
 import { Repository } from 'typeorm';
 import { CreateMealDto } from './dto/create-meal.dto';
 import { SearchMealQueryDto } from './dto/search-meal-query.dto';
 import { Meal, MealType } from './meals.model';
-import { writeFile } from 'fs/promises';
+import { MealsImageService } from './meals-image.service';
 
 @Injectable()
 export class MealsService {
   constructor(
     @InjectRepository(Meal) private mealsRepository: Repository<Meal>,
+    private mealsImageService: MealsImageService,
   ) {}
 
   async insertMeal(body: CreateMealDto): Promise<Meal> {
@@ -92,15 +89,7 @@ export class MealsService {
     const meal = await this.mealsRepository.findOneBy({ id });
     if (!meal) throw new NotFoundException();
 
-    const path = `meals-images/img-${Date.now()}.${image.originalname
-      .split('.')
-      .pop()}`;
-
-    try {
-      await writeFile(path, image.buffer);
-    } catch (error) {
-      throw new InternalServerErrorException();
-    }
+    const path = await this.mealsImageService.uploadImage(id, image);
 
     await this.mealsRepository.update({ id: meal.id }, { imagePath: path });
   }
