@@ -15,6 +15,7 @@ import { SearchMealQueryDto } from './dto/search-meal-query.dto';
 import { MealsService } from './meals.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { fileValidation } from './fileValidation';
 
 @Controller('meals')
 export class MealsController {
@@ -42,7 +43,7 @@ export class MealsController {
   @UseInterceptors(FileInterceptor('image'))
   async uploadImage(
     @Param('id') id: string,
-    @UploadedFile() image: Express.Multer.File,
+    @UploadedFile(fileValidation) image: Express.Multer.File,
   ) {
     return this.mealsService.uploadImage(Number(id), image);
   }
