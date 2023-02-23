@@ -48,6 +48,9 @@ export class Meal {
   })
   mealType: MealType;
 
+  @Column({ nullable: true })
+  imagePath?: string;
+
   @OneToMany(() => Ingredients, (ingredients) => ingredients.meal, {
     cascade: true,
   })
