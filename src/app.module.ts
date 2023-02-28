@@ -11,6 +11,7 @@ import { User } from './users/users.model';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { ConfigService } from '@nestjs/config/dist';
+import { ImagesModule } from './images/images.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { ConfigService } from '@nestjs/config/dist';
     UsersModule,
     AuthModule,
     ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
+    ImagesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

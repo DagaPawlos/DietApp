@@ -39,6 +39,7 @@ export class MealsController {
     return this.mealsService.getMeal(Number(id));
   }
 
+  @UseGuards(JwtAuthGuard)
   @Patch(':id/image')
   @UseInterceptors(FileInterceptor('image'))
   async uploadImage(
