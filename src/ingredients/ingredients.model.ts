@@ -1,4 +1,4 @@
-import { Meal } from 'src/meals/meals.model';
+import { Meal } from '../meals/meals.model';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 export enum Unit {

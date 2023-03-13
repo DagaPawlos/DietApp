@@ -1,4 +1,4 @@
-import { Ingredients } from 'src/ingredients/ingredients.model';
+import { Ingredients } from '../ingredients/ingredients.model';
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 
 export enum Owner {

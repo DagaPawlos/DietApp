@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Ingredients } from 'src/ingredients/ingredients.model';
+import { Ingredients } from '../ingredients/ingredients.model';
 import { Repository } from 'typeorm';
 import { CreateMealDto } from './dto/create-meal.dto';
 import { SearchMealQueryDto } from './dto/search-meal-query.dto';
