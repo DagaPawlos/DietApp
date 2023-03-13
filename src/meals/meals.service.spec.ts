@@ -164,7 +164,7 @@ describe('MealsService', () => {
       const image = {
         imagePath: 'PanŚcieżka',
         originalname: 'plik.jpg',
-        buffer: new Buffer('jpg'),
+        buffer: Buffer.from('data'),
       };
       mealsRepository.findOneBy.mockResolvedValue({
         id: 1,
@@ -182,7 +182,7 @@ describe('MealsService', () => {
       );
     });
 
-    it('should return error when updated meal doesnt exist', async () => {
+    it('should throw error when updated meal doesnt exist', async () => {
       //given
       const id = 1;
       const image = {

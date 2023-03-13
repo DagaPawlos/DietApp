@@ -3,7 +3,7 @@ import { writeFile } from 'fs/promises';
 
 @Injectable()
 export class MealsImageService {
-  async uploadImage(id: number, image: Express.Multer.File) {
+  async uploadImage(image: Express.Multer.File) {
     const path = this.createPath(image.originalname);
 
     try {

@@ -90,7 +90,7 @@ export class MealsService {
     const meal = await this.mealsRepository.findOneBy({ id });
     if (!meal) throw new NotFoundException();
 
-    const path = await this.mealsImageService.uploadImage(id, image);
+    const path = await this.mealsImageService.uploadImage(image);
 
     await this.mealsRepository.update({ id: meal.id }, { imagePath: path });
   }
