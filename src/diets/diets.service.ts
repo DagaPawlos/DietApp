@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Unit } from 'src/ingredients/ingredients.model';
-import { Meal, MealType, Owner } from 'src/meals/meals.model';
+import { Unit } from '../ingredients/ingredients.model';
+import { Meal, MealType, Owner } from '../meals/meals.model';
 import { In, Repository } from 'typeorm';
 import { DagaTargetCalories, PatrykTargetCalories } from './calories-config';
 import { CreateDietDto, DietMeal } from './create-diet.dto';
