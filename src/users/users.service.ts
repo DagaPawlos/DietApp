@@ -12,7 +12,9 @@ export class UsersService {
     private readonly cryptoService: CryptoService,
   ) {}
 
-  async addUser(body: RegisterUserDto): Promise<User> {
+  async addUser(
+    body: RegisterUserDto,
+  ): Promise<Omit<User, 'password' | 'salt'>> {
     const userExist = await this.usersRepository.findOne({
       where: { login: body.login },
     });
@@ -27,9 +29,14 @@ export class UsersService {
 
     newUser.password = hash;
     newUser.salt = salt;
-
-    const user = await this.usersRepository.save(newUser);
-    return user;
+    const {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      password,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      salt: userSalt,
+      ...rest
+    } = await this.usersRepository.save(newUser);
+    return rest;
   }
 
   async findUser(login: string): Promise<User> {
